@@ -1,7 +1,7 @@
-#install
+# install
 run `make`
 
-#usage
+# usage
 ```
 usage: pmread PID [REGIONS...]
 read map REGIONS of PID and writes to stdout
