@@ -12,7 +12,7 @@ all: $(NAME)
 $(NAME): $(NAME).o util.o
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@ 
 
-.PHONY: clean install uninstall
+.PHONY: clean install uninstall all
 
 clean:
 	rm -f *.o $(NAME)
