@@ -111,6 +111,9 @@ int main(int argc, char **argv) {
             sscanf(mapv[j], "%lx-%lx %s %lx %lx:%lx %d %" STR(PATH_MAX) "[^\n]",
                    &start, &end, mode, &offset, &major, &minor, &inode, path);
 
+        if (n < 7)
+          die("could not parse '%s'", pathmaps);
+
         if (strcmp(argv[i], "all") == 0)
           print_map_region(fmem, start, end, mapv[j]);
 
