@@ -2,6 +2,7 @@ CC=cc
 CFLAGS=-Wall -Wextra -pedantic -g
 NAME=pmread
 LIBS=
+BINDSTPATH=/usr/local/bin
 
 all: $(NAME)
 
@@ -11,7 +12,13 @@ all: $(NAME)
 $(NAME): $(NAME).o util.o
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@ 
 
-.PHONY: clean
+.PHONY: clean install uninstall
 
 clean:
 	rm -f *.o $(NAME)
+
+install: $(NAME)
+	cp $(NAME) $(BINDSTPATH)
+
+uninstall:
+	rm -f $(BINDSTPATH)/$(NAME)
