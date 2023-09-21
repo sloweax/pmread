@@ -11,7 +11,7 @@
 #define MAPINFOPATHF "%" STR(PATH_MAX) "[^\n]"
 
 typedef struct {
-  char mode[5], path[PATH_MAX + 1];
+  char mode[5], path[PATH_MAX];
   long unsigned start, end, offset, major, minor;
   int inode;
 } Mapinfo;
@@ -112,9 +112,9 @@ int main(int argc, char **argv) {
           if (m.path[0] == '\0')
             continue;
 
-          char path[PATH_MAX + 1];
+          char path[PATH_MAX];
 
-          if (sscanf(argv[i], "path:" MAPINFOPATHF, path) != 1) {
+          if (sscanf(argv[i], "path:" MAPINFOPATHF, (char *)path) != 1) {
             fprintf(stderr, "invalid path '%s'\n", argv[i]);
             break;
           }
