@@ -142,7 +142,7 @@ bool startswith(const char *str, const char *pre) {
 }
 
 void parse_map_line(Mapinfo *m, const char *line) {
-  int n = sscanf(line, "%lx-%lx %s %lx %lx:%lx %d " MAPINFOPATHF, &m->start,
+  int n = sscanf(line, "%lx-%lx %4s %lx %lx:%lx %d " MAPINFOPATHF, &m->start,
                  &m->end, (char *)&m->mode, &m->offset, &m->major, &m->minor,
                  &m->inode, (char *)&m->path);
 
