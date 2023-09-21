@@ -8,39 +8,19 @@
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAPINFOPATHF "%" STR(PATH_MAX) "[^\n]"
 
-bool startswith(const char *str, const char *pre) {
-  return strncmp(pre, str, strlen(pre)) == 0;
-}
+typedef struct {
+  char mode[5], path[PATH_MAX + 1];
+  long unsigned start, end, offset, major, minor;
+  int inode;
+} Mapinfo;
 
-void print_map_region(FILE *f, long unsigned start, long unsigned end,
-                      const char *region) {
-  if (fseek(f, start, SEEK_SET) != 0) {
-    fprintf(stderr, "could not read region '%s'\n", region);
-    return;
-  }
-
-  char buf[2048];
-  size_t total = end - start;
-  size_t current = 0;
-
-  while (current <= total) {
-    size_t n = MIN(sizeof(buf), total - current);
-    if (n == 0)
-      break;
-
-    if (fread(buf, n, 1, f) != 1) {
-      fprintf(stderr, "could not read region '%s'\n", region);
-      return;
-    }
-
-    current += n;
-    efwrite(buf, n, 1, stdout);
-  }
-}
+bool startswith(const char *str, const char *pre);
+void parse_map_line(Mapinfo *m, const char *line);
+void print_map_region(FILE *f, Mapinfo *m);
 
 int main(int argc, char **argv) {
-  long unsigned start, end;
   FILE *fmem, *fmaps;
   char pathmem[PATH_MAX], pathmaps[PATH_MAX];
 
@@ -98,57 +78,49 @@ int main(int argc, char **argv) {
   }
 
   for (int i = 2; i < argc; i++) {
-    if (sscanf(argv[i], "%lx-%lx", &start, &end) == 2) {
+    Mapinfo m;
+
+    if (sscanf(argv[i], "%lx-%lx", &m.start, &m.end) == 2) {
       // <addr start>-<addr end> regions
-      char tmp[500];
-      snprintf(tmp, 500, "%lx-%lx", start, end);
-      if (start > end) {
-        fprintf(stderr, "invalid region '%s'\n", tmp);
+      if (m.start > m.end) {
+        fprintf(stderr, "invalid region %lx-%lx\n", m.start, m.end);
         continue;
       }
-      print_map_region(fmem, start, end, tmp);
+
+      m.path[0] = '\0';
+      print_map_region(fmem, &m);
     } else {
       for (int j = 0; j < mapc; j++) {
-        char mode[32], path[PATH_MAX + 1];
-        long unsigned offset, major, minor;
-        int inode;
-        path[0] = '\0';
-
-        int n =
-            sscanf(mapv[j], "%lx-%lx %s %lx %lx:%lx %d %" STR(PATH_MAX) "[^\n]",
-                   &start, &end, mode, &offset, &major, &minor, &inode, path);
-
-        if (n < 7)
-          die("could not parse '%s'", pathmaps);
+        parse_map_line(&m, mapv[j]);
 
         if (strcmp(argv[i], "all") == 0)
-          print_map_region(fmem, start, end, mapv[j]);
+          print_map_region(fmem, &m);
 
         else if (startswith(argv[i], "inode:")) {
-          int inode2;
+          int inode;
 
-          if (sscanf(argv[i], "inode:%d", &inode2) != 1) {
+          if (sscanf(argv[i], "inode:%d", &inode) != 1) {
             fprintf(stderr, "invalid inode '%s'\n", argv[i]);
             break;
           }
 
-          if (inode == inode2)
-            print_map_region(fmem, start, end, mapv[j]);
+          if (m.inode == inode)
+            print_map_region(fmem, &m);
         }
 
         else if (startswith(argv[i], "path:")) {
-          if (n != 8)
+          if (m.path[0] == '\0')
             continue;
 
-          char path2[PATH_MAX + 1];
+          char path[PATH_MAX + 1];
 
-          if (sscanf(argv[i], "path:%" STR(PATH_MAX) "[^\n]", path2) != 1) {
+          if (sscanf(argv[i], "path:" MAPINFOPATHF, path) != 1) {
             fprintf(stderr, "invalid path '%s'\n", argv[i]);
             break;
           }
 
-          if (strcmp(path, path2) == 0)
-            print_map_region(fmem, start, end, mapv[j]);
+          if (strcmp(m.path, path) == 0)
+            print_map_region(fmem, &m);
         }
 
         else {
@@ -163,4 +135,48 @@ int main(int argc, char **argv) {
   fclose(fmaps);
 
   return 0;
+}
+
+bool startswith(const char *str, const char *pre) {
+  return strncmp(pre, str, strlen(pre)) == 0;
+}
+
+void parse_map_line(Mapinfo *m, const char *line) {
+  int n = sscanf(line, "%lx-%lx %s %lx %lx:%lx %d " MAPINFOPATHF, &m->start,
+                 &m->end, (char *)&m->mode, &m->offset, &m->major, &m->minor,
+                 &m->inode, (char *)&m->path);
+
+  if (n < 7)
+    die("could not parse '%s'", line);
+
+  if (n == 7)
+    m->path[0] = '\0';
+}
+
+void print_map_region(FILE *f, Mapinfo *m) {
+  if (fseek(f, m->start, SEEK_SET) != 0) {
+    fprintf(stderr, "could not read region %s %lx-%lx\n", m->path, m->start,
+            m->end);
+    return;
+  }
+
+  char buf[2048];
+  size_t total = m->end - m->start;
+  size_t current = 0;
+
+  while (current <= total) {
+    size_t n = MIN(sizeof(buf), total - current);
+    if (n == 0)
+      break;
+
+    if (fread(buf, n, 1, f) != 1) {
+      fprintf(stderr, "could not read region %s %lx-%lx chunk %lx-%lx\n",
+              m->path, m->start, m->end, m->start + current,
+              m->start + current + n);
+      return;
+    }
+
+    current += n;
+    efwrite(buf, n, 1, stdout);
+  }
 }
