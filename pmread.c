@@ -7,6 +7,7 @@
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
 
 bool startswith(const char *str, const char *pre) {
   return strncmp(pre, str, strlen(pre)) == 0;
@@ -19,17 +20,23 @@ void print_map_region(FILE *f, long unsigned start, long unsigned end,
     return;
   }
 
-  char *buf = emalloc(end - start);
+  char buf[2048];
+  size_t total = end - start;
+  size_t current = 0;
 
-  if (fread(buf, 1, end - start, f) != end - start) {
-    free(buf);
-    fprintf(stderr, "could not read region '%s'\n", region);
-    return;
+  while (current <= total) {
+    size_t n = MIN(sizeof(buf), total - current);
+    if (n == 0)
+      break;
+
+    if (fread(buf, n, 1, f) != 1) {
+      fprintf(stderr, "could not read region '%s'\n", region);
+      return;
+    }
+
+    current += n;
+    efwrite(buf, n, 1, stdout);
   }
-
-  efwrite(buf, 1, end - start, stdout);
-
-  free(buf);
 }
 
 int main(int argc, char **argv) {
