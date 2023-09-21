@@ -18,7 +18,7 @@ typedef struct {
 
 bool startswith(const char *str, const char *pre);
 void parse_map_line(Mapinfo *m, const char *line);
-void print_map_region(FILE *f, Mapinfo *m);
+void print_map_region(FILE *f, const Mapinfo *m);
 
 int main(int argc, char **argv) {
   FILE *fmem, *fmaps;
@@ -153,7 +153,7 @@ void parse_map_line(Mapinfo *m, const char *line) {
     m->path[0] = '\0';
 }
 
-void print_map_region(FILE *f, Mapinfo *m) {
+void print_map_region(FILE *f, const Mapinfo *m) {
   if (fseek(f, m->start, SEEK_SET) != 0) {
     fprintf(stderr, "could not read region %s %lx-%lx\n", m->path, m->start,
             m->end);
