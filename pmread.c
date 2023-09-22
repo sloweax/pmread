@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
   char pathmem[PATH_MAX], pathmaps[PATH_MAX];
 
   if (argc <= 2)
-    die("usage: %s PID [REGIONS...]\n"
+    die("usage: %s PID REGIONS...\n"
         "read map REGIONS of PID and writes to stdout\n"
         "examples:\n"
         "\t%s PID <addr start>-<addr end>\n"

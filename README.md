@@ -3,7 +3,7 @@ run `make`
 
 # usage
 ```
-usage: pmread PID [REGIONS...]
+usage: pmread PID REGIONS...
 read map REGIONS of PID and writes to stdout
 examples:
 	pmread PID <addr start>-<addr end>
