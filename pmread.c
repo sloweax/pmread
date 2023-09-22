@@ -32,8 +32,9 @@ int main(int argc, char **argv) {
         "\t%s PID all (read all REGIONS)\n"
         "\t%s PID path:[heap] path:[stack] path:/path/to/file (read REGION by "
         "path)\n"
-        "\t%s PID inode:0 (read REGION by inodeid)",
-        argv[0], argv[0], argv[0], argv[0], argv[0]);
+        "\t%s PID inode:0 (read REGION by inodeid)\n"
+        "\t%s PID list (list all REGIONS)",
+        argv[0], argv[0], argv[0], argv[0], argv[0], argv[0]);
 
   snprintf(pathmem, PATH_MAX, "/proc/%s/mem", argv[1]);
   snprintf(pathmaps, PATH_MAX, "/proc/%s/maps", argv[1]);
@@ -71,6 +72,10 @@ int main(int argc, char **argv) {
       argc = 3;
       argv[2] = "all";
       break;
+    } else if (strcmp(argv[i], "list") == 0) {
+      for (int j = 0; j < mapc; j++)
+        puts(mapv[j]);
+      return 0;
     }
   }
 
