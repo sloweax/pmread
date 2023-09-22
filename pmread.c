@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
   FILE *fmem, *fmaps;
   char pathmem[PATH_MAX], pathmaps[PATH_MAX];
 
-  if (argc == 1)
+  if (argc <= 2)
     die("usage: %s PID [REGIONS...]\n"
         "read map REGIONS of PID and writes to stdout\n"
         "examples:\n"
@@ -34,9 +34,6 @@ int main(int argc, char **argv) {
         "path)\n"
         "\t%s PID inode:0 (read REGION by inodeid)",
         argv[0], argv[0], argv[0], argv[0], argv[0]);
-
-  if (argc <= 2)
-    die("usage: %s pid [REGIONS...]", argv[0]);
 
   snprintf(pathmem, PATH_MAX, "/proc/%s/mem", argv[1]);
   snprintf(pathmaps, PATH_MAX, "/proc/%s/maps", argv[1]);
