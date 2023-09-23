@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+// #include <sys/cdefs.h>
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
@@ -19,22 +21,14 @@ typedef struct {
 bool startswith(const char *str, const char *pre);
 void parse_map_line(Mapinfo *m, const char *line);
 void print_map_region(FILE *f, const Mapinfo *m);
+void usage(int argc, char **argv);
 
 int main(int argc, char **argv) {
   FILE *fmem, *fmaps;
   char pathmem[PATH_MAX], pathmaps[PATH_MAX];
 
   if (argc <= 2)
-    die("usage: %s PID REGIONS...\n"
-        "read map REGIONS of PID and writes to stdout\n"
-        "examples:\n"
-        "\t%s PID <addr start>-<addr end>\n"
-        "\t%s PID all (read all REGIONS)\n"
-        "\t%s PID path:[heap] path:[stack] path:/path/to/file (read REGION by "
-        "path)\n"
-        "\t%s PID inode:0 (read REGION by inodeid)\n"
-        "\t%s PID list (list all REGIONS)",
-        argv[0], argv[0], argv[0], argv[0], argv[0], argv[0]);
+    usage(argc, argv);
 
   snprintf(pathmem, PATH_MAX, "/proc/%s/mem", argv[1]);
   snprintf(pathmaps, PATH_MAX, "/proc/%s/maps", argv[1]);
@@ -181,4 +175,23 @@ void print_map_region(FILE *f, const Mapinfo *m) {
     current += n;
     efwrite(buf, n, 1, stdout);
   }
+}
+
+void usage(int argc, char **argv) {
+  (void)argc;
+  die("usage: %s PID [OPTIONS] REGIONS...\n"
+      "read map REGIONS of PID and writes to stdout\n"
+      "REGIONS\n"
+      "\t<addr start>-<addr end>\n"
+      "\tall                        (read all REGIONS)\n"
+      "\tinode:<inodeid>            (read REGION by inodeid)\n"
+      "\tpath:<path>                (read REGION by path)\n"
+      "OPTIONS\n"
+      "\tlist                       (list all REGIONS and exit)\n"
+      "examples\n"
+      "\t%s PID 7ff14e581000-7ff14e584000\n"
+      "\t%s PID all\n"
+      "\t%s PID path:[heap] path:[stack] path:/path/to/file\n"
+      "\t%s PID inode:0\n",
+      argv[0], argv[0], argv[0], argv[0], argv[0]);
 }
