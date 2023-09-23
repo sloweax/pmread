@@ -30,6 +30,9 @@ int main(int argc, char **argv) {
   for (int i = 0; i < argc; i++) {
     if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
       usage(argc, argv, 0);
+    else if (startswith(argv[i], "-")) {
+      die("unknown option %s", argv[i]);
+    }
   }
 
   if (argc <= 2)
