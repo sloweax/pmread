@@ -115,6 +115,42 @@ int main(int argc, char **argv) {
             print_map_region(fmem, &m);
         }
 
+        else if (startswith(argv[i], "dev:")) {
+          long unsigned major, minor;
+
+          if (sscanf(argv[i], "dev:%lx:%lx", &major, &minor) != 2) {
+            fprintf(stderr, "invalid dev '%s'\n", argv[i]);
+            break;
+          }
+
+          if (m.major == major && m.minor == minor)
+            print_map_region(fmem, &m);
+        }
+
+        else if (startswith(argv[i], "major:")) {
+          long unsigned major;
+
+          if (sscanf(argv[i], "major:%lx", &major) != 1) {
+            fprintf(stderr, "invalid major '%s'\n", argv[i]);
+            break;
+          }
+
+          if (m.major == major)
+            print_map_region(fmem, &m);
+        }
+
+        else if (startswith(argv[i], "minor:")) {
+          long unsigned minor;
+
+          if (sscanf(argv[i], "minor:%lx", &minor) != 1) {
+            fprintf(stderr, "invalid minor '%s'\n", argv[i]);
+            break;
+          }
+
+          if (m.minor == minor)
+            print_map_region(fmem, &m);
+        }
+
         else if (startswith(argv[i], "path:")) {
           if (m.path[0] == '\0')
             continue;
@@ -198,6 +234,9 @@ void usage(int argc, char **argv, int status) {
           "\tall                        read all REGIONS\n"
           "\tinode:<inodeid>            read REGION by inodeid\n"
           "\tpath:<path>                read REGION by path\n"
+          "\tdev:<majorid>:<minorid>    read REGION by dev\n"
+          "\tmajor:<majorid>            read REGION by majorid\n"
+          "\tminor:<minorid>            read REGION by minorid\n"
           "OPTIONS\n"
           "\t-h, --help                 shows usage and exit\n"
           "\tlist                       list all REGIONS and exit\n"
