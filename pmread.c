@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
@@ -35,11 +36,17 @@ int main(int argc, char **argv) {
     }
   }
 
-  if (argc <= 2)
-    usage(argc, argv, 1);
+  if (argc == 1)
+    die("missing PID\n%s -h for help", argv[0]);
+
+  if (argc == 2)
+    die("missing REGION\n%s -h for help", argv[0]);
 
   snprintf(pathmem, PATH_MAX, "/proc/%s/mem", argv[1]);
   snprintf(pathmaps, PATH_MAX, "/proc/%s/maps", argv[1]);
+
+  if (!(access(pathmem, F_OK) == 0))
+    die("invalid PID %s", argv[1]);
 
   fmem = efopen(pathmem, "rb");
   fmaps = efopen(pathmaps, "rb");
