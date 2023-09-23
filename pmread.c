@@ -59,12 +59,8 @@ int main(int argc, char **argv) {
   char *mapv[mapslines];
   char *token = strtok(mapsdata, "\n");
   mapv[mapc++] = token;
-  while (1) {
-    token = strtok(NULL, "\n");
-    if (token == NULL)
-      break;
+  while ((token = strtok(NULL, "\n")))
     mapv[mapc++] = token;
-  }
 
   for (int i = 0; i < argc; i++) {
     if (strcmp(argv[i], "all") == 0) {
