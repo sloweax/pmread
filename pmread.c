@@ -253,7 +253,7 @@ void popv(int *argc, char **argv, int index) {
   assert(index < *argc);
 
   if (index != *argc - 1) {
-    for (int i = index; i < *argc + 1; i++)
+    for (int i = index; i < *argc - 1; i++)
       argv[i] = argv[i + 1];
   }
   (*argc)--;
