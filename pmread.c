@@ -21,7 +21,7 @@ typedef struct {
 bool startswith(const char *str, const char *pre);
 void parse_map_line(Mapinfo *m, const char *line);
 void print_map_region(FILE *f, const Mapinfo *m);
-void usage(int argc, char **argv, int status);
+void usage(int argc, char **argv, int status, FILE *out);
 void popv(int *argc, char **argv, int index);
 
 int main(int argc, char **argv) {
@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
 
   for (int i = 0; i < argc; i++) {
     if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
-      usage(argc, argv, 0);
+      usage(argc, argv, 0, stdout);
     else if (startswith(argv[i], "-")) {
       die("unknown option %s", argv[i]);
     }
@@ -224,9 +224,9 @@ void print_map_region(FILE *f, const Mapinfo *m) {
   }
 }
 
-void usage(int argc, char **argv, int status) {
+void usage(int argc, char **argv, int status, FILE *out) {
   (void)argc;
-  fprintf(stderr,
+  fprintf(out,
           "usage: %s PID [OPTIONS] REGIONS...\n"
           "read map REGIONS of PID and writes to stdout\n"
           "REGIONS\n"
