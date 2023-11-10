@@ -18,6 +18,7 @@ clean:
 	rm -f *.o $(NAME)
 
 install: $(NAME)
+	mkdir -p $(BINDSTPATH)
 	cp $(NAME) $(BINDSTPATH)
 
 uninstall:
