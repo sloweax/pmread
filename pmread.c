@@ -12,15 +12,15 @@
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAPINFOPATHF "%" STR(PATH_MAX) "[^\n]"
 
-typedef struct {
+struct mapinfo {
 	char mode[5], path[PATH_MAX];
 	long unsigned start, end, offset, major, minor;
 	int inode;
-} Mapinfo;
+};
 
 bool startswith(const char *str, const char *pre);
-void parse_map_line(Mapinfo * m, const char *line);
-void print_map_region(FILE * f, const Mapinfo * m);
+void parse_map_line(struct mapinfo *m, const char *line);
+void print_map_region(FILE * f, const struct mapinfo *m);
 void usage(int argc, char **argv, int status, FILE * out);
 void popv(int *argc, char **argv, int index);
 
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 	}
 
 	for (int i = 2; i < argc; i++) {
-		Mapinfo m;
+		struct mapinfo m;
 
 		if (sscanf(argv[i], "%lx-%lx", &m.start, &m.end) == 2) {
 			// <addr start>-<addr end> regions
@@ -207,7 +207,7 @@ bool startswith(const char *str, const char *pre)
 	return strncmp(pre, str, strlen(pre)) == 0;
 }
 
-void parse_map_line(Mapinfo * m, const char *line)
+void parse_map_line(struct mapinfo *m, const char *line)
 {
 	int n =
 	    sscanf(line, "%lx-%lx %4s %lx %lx:%lx %d " MAPINFOPATHF, &m->start,
@@ -221,7 +221,7 @@ void parse_map_line(Mapinfo * m, const char *line)
 		m->path[0] = '\0';
 }
 
-void print_map_region(FILE * f, const Mapinfo * m)
+void print_map_region(FILE * f, const struct mapinfo *m)
 {
 	if (fseek(f, m->start, SEEK_SET) != 0) {
 		fprintf(stderr, "could not read region %s %lx-%lx\n", m->path,
