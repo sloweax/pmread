@@ -22,7 +22,7 @@ void die(const char *fmt, ...)
 	exit(1);
 }
 
-long int eftell(FILE * f)
+long int eftell(FILE *f)
 {
 	long int s = ftell(f);
 	if (s == -1)
@@ -30,7 +30,7 @@ long int eftell(FILE * f)
 	return s;
 }
 
-void efseek(FILE * f, long off, int whence)
+void efseek(FILE *f, long off, int whence)
 {
 	if (fseek(f, off, whence) != 0)
 		die("fseek:");
@@ -44,13 +44,13 @@ FILE *efopen(const char *path, const char *mode)
 	return f;
 }
 
-void efwrite(const void *b, size_t s, size_t n, FILE * f)
+void efwrite(const void *b, size_t s, size_t n, FILE *f)
 {
 	if (fwrite(b, s, n, f) != n)
 		die("fwrite:");
 }
 
-void efread(void *b, size_t s, size_t n, FILE * f)
+void efread(void *b, size_t s, size_t n, FILE *f)
 {
 	if (fread(b, s, n, f) != n)
 		die("fread:");

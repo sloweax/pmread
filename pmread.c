@@ -20,8 +20,8 @@ struct mapinfo {
 
 bool startswith(const char *str, const char *pre);
 void parse_map_line(struct mapinfo *m, const char *line);
-void print_map_region(FILE * f, const struct mapinfo *m);
-void usage(int argc, char **argv, int status, FILE * out);
+void print_map_region(FILE *f, const struct mapinfo *m);
+void usage(int argc, char **argv, int status, FILE *out);
 void popv(int *argc, char **argv, int index);
 
 int main(int argc, char **argv)
@@ -30,8 +30,8 @@ int main(int argc, char **argv)
 	char pathmem[PATH_MAX], pathmaps[PATH_MAX];
 
 	for (int i = 0; i < argc; i++) {
-		if (strcmp(argv[i], "-h") == 0
-		    || strcmp(argv[i], "--help") == 0)
+		if (strcmp(argv[i], "-h") == 0 ||
+		    strcmp(argv[i], "--help") == 0)
 			usage(argc, argv, 0, stdout);
 		else if (startswith(argv[i], "-")) {
 			die("unknown option %s", argv[i]);
@@ -109,8 +109,8 @@ int main(int argc, char **argv)
 				else if (startswith(argv[i], "inode:")) {
 					int inode;
 
-					if (sscanf(argv[i], "inode:%d", &inode)
-					    != 1) {
+					if (sscanf(argv[i], "inode:%d",
+						   &inode) != 1) {
 						fprintf(stderr,
 							"invalid inode '%s'\n",
 							argv[i]);
@@ -124,25 +124,24 @@ int main(int argc, char **argv)
 				else if (startswith(argv[i], "dev:")) {
 					long unsigned major, minor;
 
-					if (sscanf
-					    (argv[i], "dev:%lx:%lx", &major,
-					     &minor) != 2) {
+					if (sscanf(argv[i], "dev:%lx:%lx",
+						   &major, &minor) != 2) {
 						fprintf(stderr,
 							"invalid dev '%s'\n",
 							argv[i]);
 						break;
 					}
 
-					if (m.major == major
-					    && m.minor == minor)
+					if (m.major == major &&
+					    m.minor == minor)
 						print_map_region(fmem, &m);
 				}
 
 				else if (startswith(argv[i], "major:")) {
 					long unsigned major;
 
-					if (sscanf(argv[i], "major:%lx", &major)
-					    != 1) {
+					if (sscanf(argv[i], "major:%lx",
+						   &major) != 1) {
 						fprintf(stderr,
 							"invalid major '%s'\n",
 							argv[i]);
@@ -156,8 +155,8 @@ int main(int argc, char **argv)
 				else if (startswith(argv[i], "minor:")) {
 					long unsigned minor;
 
-					if (sscanf(argv[i], "minor:%lx", &minor)
-					    != 1) {
+					if (sscanf(argv[i], "minor:%lx",
+						   &minor) != 1) {
 						fprintf(stderr,
 							"invalid minor '%s'\n",
 							argv[i]);
@@ -174,9 +173,9 @@ int main(int argc, char **argv)
 
 					char path[PATH_MAX];
 
-					if (sscanf
-					    (argv[i], "path:" MAPINFOPATHF,
-					     (char *)path) != 1) {
+					if (sscanf(argv[i],
+						   "path:" MAPINFOPATHF,
+						   (char *)path) != 1) {
 						fprintf(stderr,
 							"invalid path '%s'\n",
 							argv[i]);
@@ -209,10 +208,9 @@ bool startswith(const char *str, const char *pre)
 
 void parse_map_line(struct mapinfo *m, const char *line)
 {
-	int n =
-	    sscanf(line, "%lx-%lx %4s %lx %lx:%lx %d " MAPINFOPATHF, &m->start,
-		   &m->end, (char *)&m->mode, &m->offset, &m->major, &m->minor,
-		   &m->inode, (char *)&m->path);
+	int n = sscanf(line, "%lx-%lx %4s %lx %lx:%lx %d " MAPINFOPATHF,
+		       &m->start, &m->end, (char *)&m->mode, &m->offset,
+		       &m->major, &m->minor, &m->inode, (char *)&m->path);
 
 	if (n < 7)
 		die("could not parse '%s'", line);
@@ -221,7 +219,7 @@ void parse_map_line(struct mapinfo *m, const char *line)
 		m->path[0] = '\0';
 }
 
-void print_map_region(FILE * f, const struct mapinfo *m)
+void print_map_region(FILE *f, const struct mapinfo *m)
 {
 	if (fseek(f, m->start, SEEK_SET) != 0) {
 		fprintf(stderr, "could not read region %s %lx-%lx\n", m->path,
@@ -251,7 +249,7 @@ void print_map_region(FILE * f, const struct mapinfo *m)
 	}
 }
 
-void usage(int argc, char **argv, int status, FILE * out)
+void usage(int argc, char **argv, int status, FILE *out)
 {
 	(void)argc;
 	fprintf(out,
